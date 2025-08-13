@@ -1,28 +1,91 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教室與設備借用系統</title>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>教室借用預約系統</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    #calendar { max-width: 900px; margin: 0 auto; }
+  </style>
 </head>
 <body>
-    <h1>教室與設備借用系統</h1>
-    <div id="calendar"></div>
 
-    <div id="bookingForm" style="display:none;">
-        <h2>新增預約</h2>
-        <label>資源名稱: <input type="text" id="resourceName"></label><br>
-        <label>標題: <input type="text" id="title"></label><br>
-        <label>申請人: <input type="text" id="requester"></label><br>
-        <label>Email: <input type="email" id="email"></label><br>
-        <label>用途: <input type="text" id="purpose"></label><br>
-        <button id="submitBooking">送出</button>
-        <button id="cancelBooking">取消</button>
-    </div>
+<h2>教室借用預約系統</h2>
+<div id="calendar"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-    <script src="app.js"></script>
+<script>
+  // 你的節次時間清單
+  const timeSlots = [
+    { id: 'period_1', title: '第一節上課', start: '08:40', end: '09:20' },
+    { id: 'period_2', title: '第二節上課', start: '09:30', end: '10:10' },
+    { id: 'period_3', title: '第三節上課', start: '10:30', end: '11:10' },
+    { id: 'period_4', title: '第四節上課', start: '11:20', end: '12:00' },
+    { id: 'period_5', title: '第五節上課', start: '13:30', end: '14:10' },
+    { id: 'period_6', title: '第六節上課', start: '14:20', end: '15:00' },
+    { id: 'period_7', title: '第七節上課', start: '15:15', end: '15:55' }
+  ];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridDay',
+      allDaySlot: false,
+      slotMinTime: '07:00:00',
+      slotMaxTime: '18:00:00',
+      selectable: false,
+      events: timeSlots.map(slot => ({
+        id: slot.id,
+        title: slot.title,
+        start: todayStr + 'T' + slot.start + ':00',
+        end: todayStr + 'T' + slot.end + ':00',
+        backgroundColor: '#3788d8',
+        borderColor: '#3788d8',
+      })),
+      eventClick: function(info) {
+        if(confirm(`確定預約${info.event.title} 時段嗎？\n時間：${info.event.start.toLocaleTimeString()} - ${info.event.end.toLocaleTimeString()}`)){
+          // 呼叫預約函式
+          makeReservation(info.event.start, info.event.end);
+        }
+      }
+    });
+
+    calendar.render();
+
+    function makeReservation(startDate, endDate) {
+      // 這邊是示範呼叫你的 GAS API，請自行調整你的 Web App URL 和密碼
+      const url = 'https://script.google.com/macros/s/AKfycbwJB7m0bJOaCk0jl1nN7ZPxm4tRb-cZjAqt_SOuKRyUUqRhxGqVyy_qqIj7fupUAhRaWA/exec';
+      const password = 'abcd1234';
+
+      const data = {
+        action: 'create',
+        token: password,
+        resourceId: '教室A',  // 這裡根據你的需求改資源名稱
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+        user: '學生A'  // 實際使用請改成登入使用者名稱或輸入欄位
+      };
+
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(res => res.json())
+        .then(json => {
+          if(json.success) {
+            alert('預約成功！');
+            calendar.refetchEvents();
+          } else {
+            alert('預約失敗：' + json.message);
+          }
+        })
+        .catch(err => alert('發生錯誤：' + err.message));
+    }
+  });
+</script>
+
 </body>
 </html>
