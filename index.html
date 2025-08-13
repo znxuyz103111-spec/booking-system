@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教室與設備借用系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>教室與設備借用系統</h1>
+    <div id="calendar"></div>
+
+    <div id="bookingForm" style="display:none;">
+        <h2>新增預約</h2>
+        <label>資源名稱: <input type="text" id="resourceName"></label><br>
+        <label>標題: <input type="text" id="title"></label><br>
+        <label>申請人: <input type="text" id="requester"></label><br>
+        <label>Email: <input type="email" id="email"></label><br>
+        <label>用途: <input type="text" id="purpose"></label><br>
+        <button id="submitBooking">送出</button>
+        <button id="cancelBooking">取消</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
